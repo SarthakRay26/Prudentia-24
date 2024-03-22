@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gemini Chatbot</title>
+  <style>
+    #chat-container {
+      width: 300px;
+      margin: 0 auto;
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    #messages {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    #input-container {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="chat-container">
+    <div id="messages"></div>
+    <div id="input-container">
+      <input type="text" id="user-input" placeholder="Type your message..." />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    function displayMessage(message) {
+      const messagesDiv = document.getElementById("messages");
+      const messageDiv = document.createElement("div");
+      messageDiv.textContent = message;
+      messagesDiv.appendChild(messageDiv);
+    }
+
+    async function sendMessage() {
+      const userInput = document.getElementById("user-input").value;
+      displayMessage("User: " + userInput);
+      document.getElementById("user-input").value = ""; // Clear input field after sending message
+
+      const apiKey = "AIzaSyDgH7TPOleDyzGCC0SBwKUALXALqN9eq8s"; // Replace 'YOUR_API_KEY' with your actual API key
+      const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + apiKey;
+      const data = {
+        contents: [
+          {
+            parts: [
+              {
+                text: userInput,
+              },
+            ],
+          },
+        ],
+      };
+
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const responseData = await response.json();
+        console.log("Response:", responseData.candidates[0].content.parts[0].text);
+        displayMessage("Gemini Bot: " + responseData.candidates[0].content.parts[0].text); // Display the bot response
+        // Extract and display the response data as needed
+      } catch (error) {
+        console.error("There was a problem with your fetch operation:", error);
+      }
+    }
+  </script>
+</body>
+</html>
